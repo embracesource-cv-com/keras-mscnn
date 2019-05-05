@@ -8,6 +8,7 @@
 from keras.layers import Input, Conv2D, MaxPooling2D, Concatenate, Activation
 from keras.layers.normalization import BatchNormalization
 from keras.models import Model
+from keras.regularizers import l2
 
 
 def msb_module(kernel_list, numbers):
@@ -26,7 +27,8 @@ def msb_module(kernel_list, numbers):
     def f(x):
         outputs = []
         for kernel in kernel_list:
-            outputs.append(Conv2D(numbers, kernel, activation='relu', padding='same')(x))
+            outputs.append(Conv2D(numbers, kernel, activation='relu', padding='same',
+                                  kernel_regularizer=l2(5e-4))(x))
         outputs = Concatenate(axis=-1)(outputs)
         outputs = BatchNormalization()(outputs)
         outputs = Activation('relu')(outputs)
@@ -52,8 +54,8 @@ def MSCNN(input_shape):
     x = msb_module([7, 5, 3], 64)(x)
     x = msb_module([7, 5, 3], 64)(x)
     # density map regression
-    x = Conv2D(1000, (1, 1), activation='relu', padding='same')(x)
-    density_map = Conv2D(1, (1, 1), activation='relu', padding='same')(x)
+    x = Conv2D(1000, (1, 1), activation='relu', padding='same', kernel_regularizer=l2(5e-4))(x)
+    density_map = Conv2D(1, (1, 1), activation='relu')(x)
 
     model = Model(inputs=inputs, outputs=density_map)
     return model
