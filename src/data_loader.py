@@ -27,7 +27,7 @@ class DataLoader(object):
         self.num_samples = len(self.data_files)
         self.blob_list = []
 
-        for fname in self.data_files:
+        for i, fname in enumerate(self.data_files, 1):
             img = cv2.imread(os.path.join(self.data_path, fname), 0)
             img = img.astype(np.float32, copy=False)
             ht = img.shape[0]
@@ -51,6 +51,10 @@ class DataLoader(object):
             blob['gt'] = den
             blob['fname'] = fname
             self.blob_list.append(blob)
+
+            if i % 100 == 0:
+                print('Loaded {}/{} files'.format(i, self.num_samples))
+        print('[INFO] Completed loading {} files.'.format(i))
 
         if self.shuffle:
             np.random.shuffle(self.blob_list)
