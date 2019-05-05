@@ -25,11 +25,11 @@ def main(args):
     val_gt_path = cfg.VAL_GT_PATH.format(dataset)
     # 加载数据
     print('[INFO] Loading data, wait a moment...')
-    train_data_gen = DataLoader(train_path, train_gt_path, shuffle=True)
-    val_data_gen = DataLoader(val_path, val_gt_path, shuffle=False)
+    train_data_gen = DataLoader(train_path, train_gt_path, shuffle=True, gt_downsample=True)
+    val_data_gen = DataLoader(val_path, val_gt_path, shuffle=False, gt_downsample=True)
 
     # 定义模型
-    input_shape = (None, None, 3)
+    input_shape = (None, None, 1)
     model = MSCNN(input_shape)
     # 编译
     sgd = SGD(lr=1e-5, momentum=0.9, decay=0.0005)
