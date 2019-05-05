@@ -57,7 +57,7 @@ class LocalConfig(object):
     HM_GT_PATH = './heatmaps_gt'
 
     EPOCHS = 200
-    TRAIN_BATCH_SIZE = 32
+    TRAIN_BATCH_SIZE = 1
     VAL_BATCH_SIZE = 1
 
 
