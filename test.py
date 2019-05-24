@@ -11,6 +11,7 @@ import numpy as np
 from config import current_config as cfg
 import argparse
 import os
+from src.losses import l2
 
 
 def main(args):

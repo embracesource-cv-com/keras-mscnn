@@ -10,13 +10,24 @@ from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
 from model import MSCNN
 from src.data_loader import DataLoader
 from src.metrics import mae, mse
+from src.losses import l2
 from config import current_config as cfg
 import os
 import argparse
+import tensorflow as tf
+import keras
+
+
+def set_gpu_growth():
+    os.environ["CUDA_VISIBLE_DEVICES"] = '0'
+    cfg = tf.ConfigProto(allow_soft_placement=True)  # because no supported kernel for GPU devices is available
+    cfg.gpu_options.allow_growth = True
+    session = tf.Session(config=cfg)
+    keras.backend.set_session(session)
 
 
 def main(args):
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    set_gpu_growth()
     dataset = args.dataset  # 'A' or 'B'
 
     train_path = cfg.TRAIN_PATH.format(dataset)
@@ -32,8 +43,9 @@ def main(args):
     input_shape = (None, None, 1)
     model = MSCNN(input_shape)
     # 编译
-    sgd = SGD(lr=1e-5, momentum=0.9, decay=0.0005)
+    sgd = SGD(lr=1e-2, momentum=0.9, decay=0.0005)
     model.compile(optimizer=sgd, loss='mse', metrics=[mae, mse])
+    model.summary()
     # 定义callback
     checkpointer_best_train = ModelCheckpoint(
         filepath=os.path.join(cfg.MODEL_DIR, 'mscnn_' + dataset + '_train.hdf5'),
