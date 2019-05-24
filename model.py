@@ -27,12 +27,13 @@ def msb_module(kernel_list, numbers):
     def f(x):
         outputs = []
         for kernel in kernel_list:
-            outputs.append(Conv2D(numbers, kernel, activation='relu', padding='same',
+            outputs.append(Conv2D(numbers, kernel, padding='same',
                                   kernel_regularizer=l2(5e-4))(x))
         outputs = Concatenate(axis=-1)(outputs)
         outputs = BatchNormalization()(outputs)
         outputs = Activation('relu')(outputs)
         return outputs
+
     return f
 
 
@@ -40,7 +41,9 @@ def MSCNN(input_shape):
     inputs = Input(shape=input_shape)
 
     # conv
-    x = Conv2D(64, (9, 9), activation='relu', padding='same')(inputs)
+    x = Conv2D(64, (9, 9), padding='same')(inputs)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
     # MSB conv
     x = msb_module([9, 7, 5, 3], 16)(x)
     # down sample
@@ -54,8 +57,10 @@ def MSCNN(input_shape):
     x = msb_module([7, 5, 3], 64)(x)
     x = msb_module([7, 5, 3], 64)(x)
     # density map regression
-    x = Conv2D(1000, (1, 1), activation='relu', padding='same', kernel_regularizer=l2(5e-4))(x)
-    density_map = Conv2D(1, (1, 1), activation='relu')(x)
-
+    # x = Conv2D(1000, (1, 1), padding='same', kernel_regularizer=l2(5e-4))(x)
+    # x = BatchNormalization()(x)
+    # x = Activation('relu')(x)
+    x = Conv2D(1, (1, 1), activation='sigmoid')(x)
+    density_map = Activation('relu')(x)
     model = Model(inputs=inputs, outputs=density_map)
     return model
